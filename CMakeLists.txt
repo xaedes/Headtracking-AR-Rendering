@@ -26,3 +26,4 @@ set(LIB_DIR "${CMAKE_CURRENT_BINARY_DIR}/lib")
 
 add_subdirectory(common)
 add_subdirectory(AsusTest)
+add_subdirectory(AsusXtionSensor)
