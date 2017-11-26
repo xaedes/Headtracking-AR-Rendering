@@ -4,7 +4,7 @@ configure_file("version.h.in" "${CMAKE_CURRENT_BINARY_DIR}/version.h" @ONLY)
 
 # define publicly available header files
 set(HEADER_FILES
-	
+
 )
 
 # expose header files to other projects

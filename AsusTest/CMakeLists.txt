@@ -19,6 +19,10 @@ set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 include(Common)
 
+find_package(OpenNI2)
+find_package(OpenGL REQUIRED)
+find_package(GLUT REQUIRED)
+
 ## Git (and its revision)
 find_package(Git QUIET) # if we don't find git or FindGit.cmake is not on the system we ignore it.
 ## GetGitRevisionDescription module to retreive branch and revision information from Git
@@ -35,8 +39,8 @@ if(GIT_FOUND)
 endif()
 
 # This line finds the boost lib and headers. 
-set(Boost_NO_BOOST_CMAKE ON) #  Don't do a find_package in config mode before searching for a regular boost install.
-find_package(Boost COMPONENTS unit_test_framework program_options REQUIRED)
+# set(Boost_NO_BOOST_CMAKE ON) #  Don't do a find_package in config mode before searching for a regular boost install.
+# find_package(Boost COMPONENTS unit_test_framework program_options REQUIRED)
 
 # # Find ProjA if we are compiling only ProjB otherwise reuse the targets
 # add_dependent_subproject(ProjA)
@@ -49,7 +53,7 @@ add_dependent_subproject(common)
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_BINARY_DIR}/include   # add the binary tree to the search path so that we will find version.h
-    ${Boost_INCLUDE_DIRS}
+    # ${Boost_INCLUDE_DIRS}
 )
 
 # Mac needed variables (adapt for your needs - http://www.cmake.org/Wiki/CMake_RPATH_handling#Mac_OS_X_and_the_RPATH)
