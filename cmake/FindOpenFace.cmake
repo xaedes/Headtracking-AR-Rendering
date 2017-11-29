@@ -3,13 +3,27 @@
 
 # Uses environment variable OpenFace_ROOT as backup
 # - OpenFace_FOUND
+# - OpenFace_CONFIG_DIR
 # - OpenFace_INCLUDE_DIRS
 # - OpenFace_LIBRARIES
 
 # message(${DEPENDS_DIR})
 
+# FIND_PATH(OpenFace_CONFIG_DIR
+#   OpenFace/model/clm_general.txt
+#   # OpenFace/LandmarkDetector/LandmarkCoreIncludes.h
+#   DOC "Found OpenFace config directory"
+#   PATHS
+#     "/usr/local/etc/"
+#     # ENV OpenFace_ROOT
+
+#   # PATH_SUFFIXES OpenFace
+#   # PATH_SUFFIXES
+#     # include
+# )
+
 FIND_PATH(OpenFace_INCLUDE_DIRS
-  OpenFace/LandmarkCoreIncludes.h
+  OpenFace/LandmarkDetector/LandmarkCoreIncludes.h
   DOC "Found OpenFace include directory"
   PATHS
     "/usr/local/include/"
@@ -19,6 +33,8 @@ FIND_PATH(OpenFace_INCLUDE_DIRS
   # PATH_SUFFIXES
     # include
 )
+
+SET(OpenFace_CONFIG_DIR "${OpenFace_INCLUDE_DIRS}/../etc/OpenFace")
 
 message("OpenFace_INCLUDE_DIRS ${OpenFace_INCLUDE_DIRS}")
 
@@ -44,7 +60,18 @@ FIND_LIBRARY(OpenFace_FaceAnalyser_LIB
   #   lib64
 )
 
-SET(OpenFace_LIBRARIES ${OpenFace_FaceAnalyser_LIB} ${OpenFace_LandmarkDetector_LIB})
+FIND_LIBRARY(OpenFace_GazeAnalyser_LIB
+  NAMES libGazeAnalyser.a
+  DOC "Found OpenFace library path"
+  PATHS
+    "/usr/local/lib"
+    ENV OpenFace_ROOT
+  # PATH_SUFFIXES
+  #   lib
+  #   lib64
+)
+
+SET(OpenFace_LIBRARIES ${OpenFace_FaceAnalyser_LIB} ${OpenFace_GazeAnalyser_LIB} ${OpenFace_LandmarkDetector_LIB})
 
 # IF(WIN32)
 # FIND_FILE(TurboJPEG_DLL

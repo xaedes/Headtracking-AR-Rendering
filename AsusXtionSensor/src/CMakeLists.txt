@@ -28,12 +28,13 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES
 target_link_libraries(${LIBRARY_NAME} common)
 target_link_libraries(${LIBRARY_NAME} ${OpenCV_LIBS})
 target_link_libraries(${LIBRARY_NAME} ${OPENNI2_LIBRARIES} )
+target_include_directories(${LIBRARY_NAME} PUBLIC $<TARGET_PROPERTY:common,INTERFACE_INCLUDE_DIRECTORIES>)
+target_include_directories(${LIBRARY_NAME} PUBLIC ${OPENNI2_INCLUDE_DIRS})
 
 add_executable(${APPLICATION_NAME} ${APP_SOURCES})
 target_link_libraries(${APPLICATION_NAME} ${LIBRARY_NAME})
+target_include_directories(${APPLICATION_NAME} PUBLIC $<TARGET_PROPERTY:${LIBRARY_NAME},INTERFACE_INCLUDE_DIRECTORIES>)
 
-include_directories ($<TARGET_PROPERTY:common,INTERFACE_INCLUDE_DIRECTORIES>)
-include_directories (${OPENNI2_INCLUDE_DIRS})
 
 # expose header files to other libraries
 target_include_directories(${LIBRARY_NAME}

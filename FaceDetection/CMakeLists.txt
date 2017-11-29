@@ -20,7 +20,11 @@ set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 include(Common)
 
 find_package(OpenCV)
+find_package(OpenNI2)
+
 find_package(OpenFace)
+message("OpenFace_LIBRARIES\t${OpenFace_LIBRARIES}")
+message("OpenFace_CONFIG_DIR\t${OpenFace_CONFIG_DIR}")
 
 # dlib
 

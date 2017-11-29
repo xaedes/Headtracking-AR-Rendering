@@ -1,0 +1,4 @@
+
+file(COPY "OpenNI2/OpenNI2/Drivers" DESTINATION ${CMAKE_BINARY_DIR}/bin/OpenNI2/)
+file(COPY "OpenNI2/OpenNI2.dll" DESTINATION ${CMAKE_BINARY_DIR}/bin/)
+
