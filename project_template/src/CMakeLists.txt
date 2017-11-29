@@ -34,7 +34,7 @@ target_link_libraries(${LIBRARY_NAME} common)
 add_executable(${APPLICATION_NAME} ${APP_SOURCES})
 
 # Links the target exe (projBrunner) against the library (libprojB) and other required libraries
-target_link_libraries(${APPLICATION_NAME} ${LIBRARY_NAME} ${Boost_PROGRAM_OPTIONS_LIBRARY} )
+target_link_libraries(${APPLICATION_NAME} ${LIBRARY_NAME})
 
 include_directories ($<TARGET_PROPERTY:common,INTERFACE_INCLUDE_DIRECTORIES>)
 
