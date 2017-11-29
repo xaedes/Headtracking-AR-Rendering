@@ -1,4 +1,7 @@
 #include <iostream>
+#include <vector>
+#include <string>
+#include <sstream>
 
 #include "FaceDetection/version.h"
 
@@ -16,6 +19,18 @@
 using namespace ar::FaceDetection;
 using namespace ar::AsusXtionSensor;
 
+std::vector<std::string> get_arguments(int argc, char **argv)
+{
+
+    std::vector<std::string> arguments;
+
+    // First argument is reserved for the name of the executable
+    for(int i = 0; i < argc; ++i)
+    {
+        arguments.push_back(std::string(argv[i]));
+    }
+    return arguments;
+}
 
 // Visualising the results
 void visualise_tracking(cv::Mat& captured_image, const LandmarkDetector::CLNF& face_model, const LandmarkDetector::FaceModelParameters& det_parameters, cv::Point3f gazeDirection0, cv::Point3f gazeDirection1, int frame_count, double fx, double fy, double cx, double cy)
@@ -80,11 +95,181 @@ void visualise_tracking(cv::Mat& captured_image, const LandmarkDetector::CLNF& f
     }
 }
 
+struct MyParameters
+{
+    float scale;
+};
+
+void applyOwnArguments(LandmarkDetector::FaceModelParameters& parameters, MyParameters& myParameters, std::vector<std::string>& arguments)
+{
+    std::vector<bool> consumeArgument(arguments.size());
+    for(int i=0; i < arguments.size(); i++)
+    {
+        consumeArgument.push_back(false);
+    }
+
+    for (size_t i = 1; i < arguments.size(); ++i)
+    {
+        consumeArgument[i] = false;
+
+        if (arguments[i].compare("-face_detector") == 0)
+        {
+            consumeArgument[i] = true;
+            if (i+1 < arguments.size())
+            {
+                std::string faceDetector = arguments[i + 1];
+                bool validFaceDetector = false;
+                if (faceDetector.compare("haar") == 0)
+                {
+
+                    parameters.curr_face_detector = LandmarkDetector::FaceModelParameters::HAAR_DETECTOR;
+                    validFaceDetector = true;
+                }
+                else if (faceDetector.compare("svm") == 0)
+                {
+                    parameters.curr_face_detector = LandmarkDetector::FaceModelParameters::HOG_SVM_DETECTOR;
+                    validFaceDetector = true;
+                }
+                consumeArgument[i + 1] = true;
+                i++;
+            }
+        }
+        else if (arguments[i].compare("-refine_hierarchical") == 0)
+        {
+            consumeArgument[i] = true;
+            if (i+1 < arguments.size())
+            {
+                std::stringstream sstream(arguments[i + 1]);
+                int value;
+                sstream >> value;
+
+                parameters.refine_hierarchical = (bool)(value != 0);
+
+                consumeArgument[i + 1] = true;
+                i++;
+            }
+        }
+        else if (arguments[i].compare("-refine_parameters") == 0)
+        {
+            consumeArgument[i] = true;
+            if (i+1 < arguments.size())
+            {
+                std::stringstream sstream(arguments[i + 1]);
+                int value;
+                sstream >> value;
+
+                parameters.refine_parameters = (bool)(value != 0);
+
+                consumeArgument[i + 1] = true;
+                i++;
+            }
+        }
+        else if (arguments[i].compare("-reinit_video_every") == 0)
+        {
+            consumeArgument[i] = true;
+            if (i+1 < arguments.size())
+            {
+                std::stringstream sstream(arguments[i + 1]);
+                int value;
+                sstream >> value;
+
+                parameters.reinit_video_every = value;
+
+                consumeArgument[i + 1] = true;
+                i++;
+            }
+        }
+        else if (arguments[i].compare("-scale") == 0)
+        {
+            consumeArgument[i] = true;
+            if (i+1 < arguments.size())
+            {
+                std::stringstream sstream(arguments[i + 1]);
+                float value;
+                sstream >> value;
+
+                myParameters.scale = value;
+
+                consumeArgument[i + 1] = true;
+                i++;
+            }
+        }
+    }
+    for (int i = (int)arguments.size() - 1; i >= 0; --i)
+    {
+        if (consumeArgument[i])
+        {
+            arguments.erase(arguments.begin() + i);
+        }
+    }
+}
+
+std::ostream& operator<<(std::ostream& os, const std::vector<int>& vecInt)
+{
+    os << "[";
+    for(int i=0; i < vecInt.size()-1; i++)
+    {
+        os << vecInt[i] << ", ";
+    }
+    os << vecInt[vecInt.size()-1];
+    os << "]";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const LandmarkDetector::FaceModelParameters::FaceDetector& faceDetector)
+{
+    switch(faceDetector)
+    {
+    case LandmarkDetector::FaceModelParameters::FaceDetector::HAAR_DETECTOR:
+        os << "HAAR_DETECTOR";
+        break;
+    case LandmarkDetector::FaceModelParameters::FaceDetector::HOG_SVM_DETECTOR:
+        os << "HOG_SVM_DETECTOR";
+        break;
+    default:
+        os << static_cast<int>(faceDetector);
+    }
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const LandmarkDetector::FaceModelParameters& parameters)
+{
+    os << "num_optimisation_iteration\t" << parameters.num_optimisation_iteration << std::endl;
+    os << "limit_pose\t" << parameters.limit_pose << std::endl;
+    os << "validate_detections\t" << parameters.validate_detections << std::endl;
+    os << "validation_boundary\t" << parameters.validation_boundary << std::endl;
+    os << "window_sizes_small\t" << parameters.window_sizes_small << std::endl;
+    os << "window_sizes_init\t" << parameters.window_sizes_init << std::endl;
+    os << "window_sizes_current\t" << parameters.window_sizes_current << std::endl;
+    os << "face_template_scale\t" << parameters.face_template_scale << std::endl;
+    os << "use_face_template\t" << parameters.use_face_template << std::endl;
+    os << "model_location\t" << parameters.model_location << std::endl;
+    os << "sigma\t" << parameters.sigma << std::endl;
+    os << "reg_factor\t" << parameters.reg_factor << std::endl;
+    os << "weight_factor\t" << parameters.weight_factor << std::endl;
+    os << "multi_view\t" << parameters.multi_view << std::endl;
+    os << "reinit_video_every\t" << parameters.reinit_video_every << std::endl;
+    os << "face_detector_location\t" << parameters.face_detector_location << std::endl;
+    os << "curr_face_detector\t" << parameters.curr_face_detector << std::endl;
+    os << "quiet_mode\t" << parameters.quiet_mode << std::endl;
+    os << "refine_hierarchical\t" << parameters.refine_hierarchical << std::endl;
+    os << "refine_parameters\t" << parameters.refine_parameters << std::endl;
+    os << "track_gaze\t" << parameters.track_gaze << std::endl;
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const MyParameters& myParameters)
+{
+    os << "scale\t" << myParameters.scale << std::endl;
+    return os;
+}
+
 int main(int argc, char* argv[])
 {	
     std::cout << "version " << Version::getString() << std::endl;
     std::cout << "revision " << Version::getRevision() << std::endl;
 
+    std::vector<std::string> arguments = get_arguments(argc, argv);
 
     AsusXtionSensor sensor;
     Streamer_<cv::Mat_<cv::Vec3b>> color = sensor.colorStream();
@@ -92,6 +277,7 @@ int main(int argc, char* argv[])
 
     int key = 255;
     cv::Mat_<cv::Vec3b> colorFrame;
+    cv::Mat_<cv::Vec3b> colorFrameScaled;
     cv::Mat_<uint16_t> depthFrame;
 
     bool output_2D_landmarks = true;
@@ -106,9 +292,39 @@ int main(int argc, char* argv[])
     bool visualize_hog = false;
     // Load the modules that are being used for tracking and face analysis
     // Load face landmark detector
-    LandmarkDetector::FaceModelParameters det_parameters;
+    LandmarkDetector::FaceModelParameters det_parameters(arguments);
+    MyParameters myParameters{1.0};
+    applyOwnArguments(det_parameters, myParameters, arguments);
     // Always track gaze in feature extraction
     det_parameters.track_gaze = true;
+
+    std::cout << "det_parameters" << std::endl;
+    std::cout << "----" << std::endl;
+    std::cout << det_parameters << std::endl;
+    std::cout << "----" << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "myParameters" << std::endl;
+    std::cout << "----" << std::endl;
+    std::cout << myParameters << std::endl;
+    std::cout << "----" << std::endl;
+    std::cout << std::endl;
+
+    // -face_detector haar
+    // det_parameters.curr_face_detector = HAAR_DETECTOR;
+    // -n_iter 2
+    // det_parameters.num_optimisation_iteration = 2;
+    // -refine_hierarchical 0
+    // det_parameters.refine_hierarchical = false;
+    // -refine_parameters 0
+    // det_parameters.refine_parameters = false;
+    
+    // -reinit_video_every 20
+
+    // geht nich:
+    // -validate_detections 0
+    // det_parameters.validate_detections = false;
+    
     LandmarkDetector::CLNF face_model(det_parameters.model_location);
 
     // Load facial feature extractor and AU analyser
@@ -122,20 +338,32 @@ int main(int argc, char* argv[])
         color >> colorFrame;
         depth >> depthFrame;
 
+        if(myParameters.scale != 1.0 && 0 < myParameters.scale && myParameters.scale < 16)
+        {
+            cv::Size size = colorFrame.size();
+            cv::Size scaledSize((int)ceil(size.width * myParameters.scale), (int)ceil(size.height * myParameters.scale));
+            cv::resize(colorFrame, colorFrameScaled, scaledSize);
+        }
+        else
+        {
+            colorFrameScaled = colorFrame;               
+        }
+
         frame_count += 1;
         {
 
             // Reading the images
             cv::Mat_<uchar> grayscale_image;
 
-            if(colorFrame.channels() == 3)
+            if(colorFrameScaled.channels() == 3)
             {
-                cvtColor(colorFrame, grayscale_image, CV_BGR2GRAY);             
+                cvtColor(colorFrameScaled, grayscale_image, CV_BGR2GRAY);             
             }
             else
             {
-                grayscale_image = colorFrame.clone();               
+                grayscale_image = colorFrameScaled.clone();               
             }
+
 
             // The actual facial landmark detection / tracking
             bool detection_success;
@@ -151,14 +379,14 @@ int main(int argc, char* argv[])
             // If optical centers are not defined just use center of image
             // if(cx_undefined)
             {
-                cx = colorFrame.cols / 2.0f;
-                cy = colorFrame.rows / 2.0f;
+                cx = colorFrameScaled.cols / 2.0f;
+                cy = colorFrameScaled.rows / 2.0f;
             }
             // Use a rough guess-timate of focal length
             // if (fx_undefined)
             {
-                fx = 500 * (colorFrame.cols / 640.0);
-                fy = 500 * (colorFrame.rows / 480.0);
+                fx = 500 * (colorFrameScaled.cols / 640.0);
+                fy = 500 * (colorFrameScaled.rows / 480.0);
 
                 fx = (fx + fy) / 2.0;
                 fy = fx;
@@ -175,13 +403,13 @@ int main(int argc, char* argv[])
             cv::Vec6d pose_estimate = LandmarkDetector::GetPose(face_model, fx, fy, cx, cy);
 
             // Visualising the tracker
-            visualise_tracking(colorFrame, face_model, det_parameters, gazeDirection0, gazeDirection1, frame_count, fx, fy, cx, cy);
+            visualise_tracking(colorFrameScaled, face_model, det_parameters, gazeDirection0, gazeDirection1, frame_count, fx, fy, cx, cy);
 
         }
 
-        if(colorFrame.data)
+        if(colorFrameScaled.data)
         {
-            cv::imshow("color", colorFrame);
+            cv::imshow("color", colorFrameScaled);
         }
         if(depthFrame.data)
         {
