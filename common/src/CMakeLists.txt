@@ -5,7 +5,7 @@ prepend(LIB_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/../include/${PROJECT_NAME}/" ${
 
 set(LIB_SOURCES
     version.cpp
-    csvRow.cpp
+    CSVRow.cpp
     timing.cpp
     measureTime.cpp
     stringUtils.cpp

@@ -6,8 +6,7 @@ prepend(LIB_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/../include/${PROJECT_NAME}" ${H
 
 set(LIB_SOURCES
 	version.cpp
-    FaceDetection.cpp
-
+	FaceDetectionComponent.cpp
 )
 
 set(APP_HEADERS
@@ -32,46 +31,26 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES
 # Links the target library against the library (libprojBA)
 target_link_libraries(${LIBRARY_NAME} common)
 target_link_libraries(${LIBRARY_NAME} AsusXtionSensor)
+target_link_libraries(${LIBRARY_NAME} FaceDetection)
+target_link_libraries(${LIBRARY_NAME} FaceDetectionFilter)
 target_link_libraries(${LIBRARY_NAME} ${OpenCV_LIBS})
+
 target_include_directories(${LIBRARY_NAME} PUBLIC $<TARGET_PROPERTY:common,INTERFACE_INCLUDE_DIRECTORIES>)
 target_include_directories(${LIBRARY_NAME} PUBLIC $<TARGET_PROPERTY:AsusXtionSensor,INTERFACE_INCLUDE_DIRECTORIES>)
+target_include_directories(${LIBRARY_NAME} PUBLIC $<TARGET_PROPERTY:FaceDetection,INTERFACE_INCLUDE_DIRECTORIES>)
+target_include_directories(${LIBRARY_NAME} PUBLIC $<TARGET_PROPERTY:FaceDetectionFilter,INTERFACE_INCLUDE_DIRECTORIES>)
 
-target_link_libraries(${LIBRARY_NAME} ${OPENNI2_LIBRARIES} )
-
-# OpenFace
-target_link_libraries(${LIBRARY_NAME} ${OpenFace_LIBRARIES})
-target_include_directories(${LIBRARY_NAME} PUBLIC ${OpenFace_INCLUDE_DIRS})
-
-# dependencies of OpenFace.. so unclean
-target_link_libraries(${LIBRARY_NAME} ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${BLAS_LIBRARIES})
-target_link_libraries(${LIBRARY_NAME} dlib)
-target_include_directories(${LIBRARY_NAME} PUBLIC ${BLAS_INCLUDE_DIRS})
-target_include_directories(${LIBRARY_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})
-target_include_directories(${LIBRARY_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
-target_include_directories(${LIBRARY_NAME} PUBLIC ../external/dlib/include)
-
-file(COPY "${OpenFace_CONFIG_DIR}/AU_predictors" DESTINATION ${CMAKE_BINARY_DIR}/bin/)
-file(COPY "${OpenFace_CONFIG_DIR}/classifiers" DESTINATION ${CMAKE_BINARY_DIR}/bin/)
-file(COPY "${OpenFace_CONFIG_DIR}/model" DESTINATION ${CMAKE_BINARY_DIR}/bin/)
-
-# add application
+# This is a make target, so you can do a "make projBrunner"
 add_executable(${APPLICATION_NAME} ${APP_SOURCES})
 
 # Links the target exe (projBrunner) against the library (libprojB) and other required libraries
 target_link_libraries(${APPLICATION_NAME} ${LIBRARY_NAME})
 
-target_link_libraries(${APPLICATION_NAME} common)
-target_link_libraries(${APPLICATION_NAME} AsusXtionSensor)
-target_link_libraries(${APPLICATION_NAME} ${OpenCV_LIBS})
-target_link_libraries(${APPLICATION_NAME} ${OPENNI2_LIBRARIES} )
-target_link_libraries(${APPLICATION_NAME} ${OpenFace_LIBRARIES})
-target_link_libraries(${APPLICATION_NAME} ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${BLAS_LIBRARIES})
-target_link_libraries(${APPLICATION_NAME} dlib)
-
-
-target_include_directories(${APPLICATION_NAME} PRIVATE ../external/dlib/include)
+# target_include_directories(${APPLICATION_NAME} PRIVATE $<TARGET_PROPERTY:common,INTERFACE_INCLUDE_DIRECTORIES>)
+# target_include_directories(${APPLICATION_NAME} PRIVATE $<TARGET_PROPERTY:AsusXtionSensor,INTERFACE_INCLUDE_DIRECTORIES>)
+# target_include_directories(${APPLICATION_NAME} PRIVATE $<TARGET_PROPERTY:FaceDetection,INTERFACE_INCLUDE_DIRECTORIES>)
+# target_include_directories(${APPLICATION_NAME} PRIVATE $<TARGET_PROPERTY:FaceDetectionFilter,INTERFACE_INCLUDE_DIRECTORIES>)
 target_include_directories(${APPLICATION_NAME} PRIVATE $<TARGET_PROPERTY:${LIBRARY_NAME},INTERFACE_INCLUDE_DIRECTORIES>)
-
 
 # expose header files to other libraries
 target_include_directories(${LIBRARY_NAME}

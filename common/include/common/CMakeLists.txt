@@ -4,7 +4,7 @@ configure_file("version.h.in" "${CMAKE_CURRENT_BINARY_DIR}/version.h" @ONLY)
 
 # define publicly available header files
 set(HEADER_FILES
-    csvRow.h
+    CSVRow.h
     math.h
     timing.h
     rotationMatrices.h
@@ -13,7 +13,9 @@ set(HEADER_FILES
     measureTime.h
     simpleStatistics.h
     simpleStatistics.h.cpp
-	stringUtils.h
+    stringUtils.h
+	Maybe.h
+    get_arguments.h
 )
 
 # expose header files to other projects

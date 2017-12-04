@@ -1,5 +1,5 @@
 #pragma once
 #include <math.h>
 #define PI           3.14159265358979323846
-#define D2R (PI/180)
-#define R2D (180/PI)
+#define DEGREE_TO_RADIAN (PI/180)
+#define RADIAN_TO_DEGREE (180/PI)
