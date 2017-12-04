@@ -20,7 +20,7 @@ AsusXtionSensor::AsusXtionSensor()
     rc = m_device.open(deviceURI);
     if (rc != openni::STATUS_OK)
     {
-        printf("SimpleViewer: Device open failed:\n%s\n", openni::OpenNI::getExtendedError());
+        printf("AsusXtionSensor: Device open failed:\n%s\n", openni::OpenNI::getExtendedError());
         openni::OpenNI::shutdown();
     }
     else
@@ -31,13 +31,13 @@ AsusXtionSensor::AsusXtionSensor()
             rc = m_depth.start();
             if (rc != openni::STATUS_OK)
             {
-                printf("SimpleViewer: Couldn't start depth stream:\n%s\n", openni::OpenNI::getExtendedError());
+                printf("AsusXtionSensor: Couldn't start depth stream:\n%s\n", openni::OpenNI::getExtendedError());
                 m_depth.destroy();
             }
         }
         else
         {
-            printf("SimpleViewer: Couldn't find depth stream:\n%s\n", openni::OpenNI::getExtendedError());
+            printf("AsusXtionSensor: Couldn't find depth stream:\n%s\n", openni::OpenNI::getExtendedError());
         }
 
         rc = m_color.create(m_device, openni::SENSOR_COLOR);
@@ -46,19 +46,19 @@ AsusXtionSensor::AsusXtionSensor()
             rc = m_color.start();
             if (rc != openni::STATUS_OK)
             {
-                printf("SimpleViewer: Couldn't start color stream:\n%s\n", openni::OpenNI::getExtendedError());
+                printf("AsusXtionSensor: Couldn't start color stream:\n%s\n", openni::OpenNI::getExtendedError());
                 m_color.destroy();
             }
         }
         else
         {
-            printf("SimpleViewer: Couldn't find color stream:\n%s\n", openni::OpenNI::getExtendedError());
+            printf("AsusXtionSensor: Couldn't find color stream:\n%s\n", openni::OpenNI::getExtendedError());
         }
     }
 
     if (!m_depth.isValid() || !m_color.isValid())
     {
-        printf("SimpleViewer: No valid streams. Exiting\n");
+        printf("AsusXtionSensor: No valid streams. Exiting\n");
         openni::OpenNI::shutdown();
     }
     else
@@ -139,5 +139,5 @@ Streamer_<cv::Mat_<uint16_t>> AsusXtionSensor::depthStream()
     return Streamer_<cv::Mat_<uint16_t>>(std::bind(AsusXtionSensor::readDepthFrame, this, std::placeholders::_1));
 }
 
-} // namespace ar
 } // namespace AsusXtionSensor
+} // namespace ar

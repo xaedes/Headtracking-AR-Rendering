@@ -12,6 +12,10 @@ template<typename T>
 class Streamer_
 {
 public:
+    Streamer_()
+        : m_readFunction(static_cast<ReadTFunction<T>>(NULL))
+    {}
+
     Streamer_(ReadTFunction<T> readFunction)
         : m_readFunction(readFunction)
     {}

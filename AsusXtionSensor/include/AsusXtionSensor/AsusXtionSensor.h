@@ -30,5 +30,5 @@ protected:
     openni::VideoFrameRef m_colorFrame;
 };
 
-} // namespace ar
 } // namespace AsusXtionSensor
+} // namespace ar
