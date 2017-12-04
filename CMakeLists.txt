@@ -24,6 +24,7 @@ set(LIB_DIR "${CMAKE_CURRENT_BINARY_DIR}/lib")
 # add_definitions(-DBENCHMARK)
 # add_definitions(-DMS_WIN64)
 
+add_subdirectory(catch)
 add_subdirectory(common)
 add_subdirectory(AsusTest)
 add_subdirectory(AsusXtionSensor)
