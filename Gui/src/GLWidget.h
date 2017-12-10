@@ -50,6 +50,7 @@ namespace Gui {
 
 		void paintAxes(float size);
 		void paintAxes(const cv::Matx44f& coordinateSystem, float size);
+		void paintGridCube(float interval, int w, int h, int l, float x0, float y0, float z0);
 
 		void paintGridSpotlight(const cv::Vec2f& xyPosition, float size, float interval);
 

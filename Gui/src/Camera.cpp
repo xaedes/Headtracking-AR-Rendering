@@ -42,6 +42,62 @@ namespace Gui {
 		glOrtho(x_min,x_max,y_min,y_max,-10000,10000);
 	}
 
+	void Camera::setGeneralizedProjection(
+		const cv::Vec3f& screenCornerBottomLeft,
+		const cv::Vec3f& screenCornerBottomRight,
+		const cv::Vec3f& screenCornerTopLeft,
+		const cv::Vec3f& observerPosition,
+		float nearPlane,
+		float farPlane
+	)
+	{
+		// Generalized Perspective Projection. Robert Kooima, 2008.
+		// http://csc.lsu.edu/~kooima/pdfs/gen-perspective.pdf
+		
+		// compute orthonormal basis for the screen
+		cv::Vec3f vRight = screenCornerBottomRight - screenCornerBottomLeft;
+		cv::Vec3f vUp = screenCornerTopLeft - screenCornerBottomLeft;
+		vRight = vRight / cv::norm(vRight);
+		vUp = vUp / cv::norm(vUp);
+		cv::Vec3f vNormal = vRight.cross(vUp);
+		vNormal = vNormal / cv::norm(vNormal);
+		
+		// compute relative screen corner vectors
+		cv::Vec3f a = screenCornerBottomLeft - observerPosition;
+		cv::Vec3f b = screenCornerBottomRight - observerPosition;
+		cv::Vec3f c = screenCornerTopLeft - observerPosition;
+
+		// find the distance from the observer to screen plane
+		float d = -a.dot(vNormal);
+
+		// find the extent of the perpendicular projection
+		float left   = vRight.dot(a) * nearPlane / d;
+		float right  = vRight.dot(b) * nearPlane / d;
+		float bottom = vUp.dot(a) * nearPlane / d;
+		float top    = vUp.dot(c) * nearPlane / d;
+
+		// load the perpendicular projection
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glFrustum(left, right, bottom, top, nearPlane, farPlane);
+
+		// rotate the projection to be non-perpendicular
+		cv::Matx44f rotation(
+			vRight[0] , vRight[1] , vRight[2] , 0,
+			vUp[0]    , vUp[1]    , vUp[2]    , 0,
+			vNormal[0], vNormal[1], vNormal[2], 0,
+			0         , 0         , 0         , 1
+		);
+		glMultMatrixf(&rotation(0,0));
+
+		// move the apex of the frustum to the origin
+		glTranslatef(-observerPosition[0],-observerPosition[1],-observerPosition[2]);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		
+	}
+
 	void Camera::setView()
 	{
 		glMatrixMode(GL_MODELVIEW);

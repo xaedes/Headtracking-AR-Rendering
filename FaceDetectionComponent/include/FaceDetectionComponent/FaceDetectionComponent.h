@@ -8,11 +8,13 @@
 #include <mutex>
 #include <chrono>
 
-#include "FaceDetection/FaceDetection.h"
 #include "FaceDetectionFilter/FaceDetectionFilter.h"
 
 
 namespace ar {
+namespace FaceDetection {
+    class FaceDetection;
+}
 namespace FaceDetectionComponent {
 
 

@@ -90,13 +90,13 @@ namespace Gui {
         m_app.m_colorStream >> m_colorFrame;
 
         cv::Size size = m_colorFrame.size();
-        cv::Size scaledSize((int)ceil(size.width * 1.5), (int)ceil(size.height * 1.5));
+        cv::Size scaledSize((int)ceil(size.width * 2), (int)ceil(size.height * 2));
         cv::resize(m_colorFrame, m_colorFrameScaled, scaledSize);
         m_app.m_faceDetection.pushImage(m_colorFrameScaled);
 
         cv::Vec6d headPose = m_app.m_faceDetection.headPose();
         std::cout << "headPose " << headPose << std::endl;
-        m_app.m_camera->setObserverPose(headPose);
+        // m_app.m_camera->setObserverPose(headPose);
 
         cv::Mat visualizedImage = m_app.m_faceDetection.visualizedImage(m_colorFrameScaled);
         if(m_colorFrameScaled.data)
@@ -118,9 +118,45 @@ namespace Gui {
 
 		// Vector3D pos = m_app.m_vehicle.vehiclePosition();
 		// m_app.m_camera->setRotationCenter(pos[0], pos[1], pos[2]);
-		m_app.m_camera->setView();
+		float left = 50;
+		float right = -50;
+		float bottom = -50;
+		float top = -150;
+		float zScreen = -50;
 
-		paintAxes(3);
+		// ganz links: (-250,120,600)
+		// ganz rechts: (+270,120,600)
+		// mitte oben: (0,-200,600)
+
+
+		cv::Vec3f screenCornerBottomLeft(left,bottom,zScreen);
+		cv::Vec3f screenCornerBottomRight(right,bottom,zScreen);
+		cv::Vec3f screenCornerTopLeft(left,top,zScreen);
+        cv::Vec6d headPose = m_app.m_faceDetection.headPose();
+		cv::Vec3f observerPosition(
+			-headPose[0],
+			headPose[1],
+			headPose[2]
+		);
+
+		m_app.m_camera->setGeneralizedProjection(
+			screenCornerBottomLeft,
+			screenCornerBottomRight,
+			screenCornerTopLeft,
+			observerPosition,
+			1,
+			2000
+		);
+		// m_app.m_camera->setView();
+
+		cv::Matx44f coordinateSystem(
+			1,0,0,(left+right)/2,
+			0,1,0,(bottom+top)/2,
+			0,0,1,zScreen,
+			0,0,0,1
+		);
+		paintAxes(coordinateSystem,50);
+		// paintAxes(3);
 		
 		// m_app.m_vehicle.updateCoordinateSystems();
 
@@ -160,15 +196,96 @@ namespace Gui {
 
 		// glEnd();
 		
+		// paintGridCube(
+		// 	40, 50, 50, 50, 0, 0, 0
+		// );
+		 
+		
+		glPushMatrix();
+
+		cv::Matx44f transposed = coordinateSystem.t();
+		glMultMatrixf(&transposed(0,0));
+
+		glPushMatrix();
+		glTranslatef(0,0,50);
+		glRotatef(90,1,0,0);
+		glRotatef(45,0,0,1);
+		paintGridCube(
+			2, 5, 5, 5, 0, 0, 0
+		);
+		glPopMatrix();
+
+		// glPushMatrix();
+		glRotatef(45,1,0,0);
 		
 		paintGridSpotlight(
 			cv::Vec2f(0,0),
-			10,1
+			100,5
 		);
+
+		// glPopMatrix();
+
+		glPopMatrix();
 
 		checkGlError();
 
 	}
+	void GLWidget::paintGridCube(float interval, int w, int h, int l, float x0, float y0, float z0)
+	{
+		glBegin(GL_LINES);
+			glColor3f(1,1,1);
+			for(int x=0; x<w; x++)
+			{
+				for(int y=0; y<h; y++)
+				{
+					glVertex3f(
+						x0-interval*w/2+x*interval,
+						y0-interval*h/2+y*interval,
+						z0-interval*l/2+0*interval
+					);
+					glVertex3f(
+						x0-interval*w/2+x*interval,
+						y0-interval*h/2+y*interval,
+						z0-interval*l/2+(l-1)*interval
+					);
+				}
+			}
+			for(int x=0; x<w; x++)
+			{
+				for(int z=0; z<l; z++)
+				{
+					glVertex3f(
+						x0-interval*w/2+x*interval,
+						y0-interval*h/2+0*interval,
+						z0-interval*l/2+z*interval
+					);
+					glVertex3f(
+						x0-interval*w/2+x*interval,
+						y0-interval*h/2+(h-1)*interval,
+						z0-interval*l/2+z*interval
+					);
+				}
+			}
+			for(int y=0; y<h; y++)
+			{
+				for(int z=0; z<l; z++)
+				{
+					glVertex3f(
+						x0-interval*w/2+0*interval,
+						y0-interval*h/2+y*interval,
+						z0-interval*l/2+z*interval
+					);
+					glVertex3f(
+						x0-interval*w/2+(w-1)*interval,
+						y0-interval*h/2+y*interval,
+						z0-interval*l/2+z*interval
+					);
+				}
+			}
+		glEnd();
+
+	}
+	
 	void GLWidget::paintAxes(float size)
 	{
 		glBegin(GL_LINES);

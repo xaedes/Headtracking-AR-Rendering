@@ -1,5 +1,6 @@
 #include "FaceDetectionComponent/FaceDetectionComponent.h"
 
+#include "FaceDetection/FaceDetection.h"
 
 #include "common/get_arguments.h"
 

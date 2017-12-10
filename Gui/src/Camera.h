@@ -15,6 +15,14 @@ namespace Gui {
 		Camera(Keyboard& keyboard);
 		~Camera();
 		void setProjection(int display_width, int display_height);
+		void setGeneralizedProjection(
+			const cv::Vec3f& screenCornerBottomLeft,
+			const cv::Vec3f& screenCornerBottomRight,
+			const cv::Vec3f& screenCornerTopLeft,
+			const cv::Vec3f& observerPosition,
+			float nearPlane,
+			float farPlane
+		);
 		void setView();
 		void setRotationCenter(float x, float y, float z);
 		void getRotationCenter(float& x, float& y, float& z);
